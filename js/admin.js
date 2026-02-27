@@ -70,76 +70,101 @@ function renderDashboard() {
     };
 
     document.getElementById('stats').innerHTML = `
-        <div class="stat-card">
-            <div class="stat-number">${stats.total}</div>
-            <div class="stat-label">Total</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.ga}</div>
-            <div class="stat-label">GA</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.ga_plus}</div>
-            <div class="stat-label">GA+</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.vip}</div>
-            <div class="stat-label">VIP</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.pending}</div>
-            <div class="stat-label">Pending</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.awaiting}</div>
-            <div class="stat-label">Awaiting</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.paid}</div>
-            <div class="stat-label">Paid</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.verified}</div>
-            <div class="stat-label">Verified</div>
-        </div>
-        <div class="stat-card">
-            <div class="stat-number">${stats.fulfilled}</div>
-            <div class="stat-label">Fulfilled</div>
+        <div class="stats-section">
+            <div class="stats-row">
+                <div class="stat-card stat-wide">
+                    <div class="stat-number">${stats.total}</div>
+                    <div class="stat-label">Total Orders</div>
+                </div>
+            </div>
+            <div class="stats-row stats-row-3">
+                <div class="stat-card">
+                    <div class="stat-number">${stats.ga}</div>
+                    <div class="stat-label">GA</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.ga_plus}</div>
+                    <div class="stat-label">GA+</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.vip}</div>
+                    <div class="stat-label">VIP</div>
+                </div>
+            </div>
+            <div class="stats-row stats-row-5">
+                <div class="stat-card">
+                    <div class="stat-number">${stats.pending}</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.awaiting}</div>
+                    <div class="stat-label">Awaiting</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.paid}</div>
+                    <div class="stat-label">Paid</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.verified}</div>
+                    <div class="stat-label">Verified</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number">${stats.fulfilled}</div>
+                    <div class="stat-label">Done</div>
+                </div>
+            </div>
         </div>
     `;
 
-    // Orders table
-    const tbody = document.getElementById('orders-body');
+    // Orders cards
+    const ordersList = document.getElementById('orders-list');
     const noOrders = document.getElementById('no-orders');
 
     if (filtered.length === 0) {
-        tbody.innerHTML = '';
+        ordersList.innerHTML = '';
         noOrders.style.display = 'block';
         return;
     }
 
     noOrders.style.display = 'none';
 
-    tbody.innerHTML = filtered.map(order => {
+    ordersList.innerHTML = filtered.map(order => {
         const screenshotLink = order.zelle_screenshot_url
-            ? `<a href="${SUPABASE_URL}/storage/v1/object/public/edc-zelle-screenshots/${encodeURI(order.zelle_screenshot_url)}" target="_blank" class="screenshot-link">View</a>`
-            : '—';
+            ? `<a href="${SUPABASE_URL}/storage/v1/object/public/edc-zelle-screenshots/${encodeURI(order.zelle_screenshot_url)}" target="_blank" class="screenshot-link">View Zelle</a>`
+            : '<span style="color:var(--text-dim)">No screenshot</span>';
 
         return `
-            <tr>
-                <td><strong>${esc(order.buyer_name)}</strong></td>
-                <td>${esc(order.email) || '—'}</td>
-                <td>${formatTicketType(order.ticket_type)}</td>
-                <td>
-                    <select onchange="updateStatus('${order.id}', this.value)" data-order-id="${order.id}">
+            <div class="card order-card">
+                <div class="order-card-header">
+                    <strong>${esc(order.buyer_name)}</strong>
+                    <span class="status-badge status-${order.status}">${formatStatus(order.status)}</span>
+                </div>
+                <div class="order-card-details">
+                    <div class="order-card-row">
+                        <span class="order-card-label">Email</span>
+                        <span class="order-card-value">${esc(order.email) || '—'}</span>
+                    </div>
+                    <div class="order-card-row">
+                        <span class="order-card-label">Ticket</span>
+                        <span class="order-card-value">${formatTicketType(order.ticket_type)}</span>
+                    </div>
+                    <div class="order-card-row">
+                        <span class="order-card-label">Zelle</span>
+                        <span class="order-card-value">${screenshotLink}</span>
+                    </div>
+                    <div class="order-card-row">
+                        <span class="order-card-label">Date</span>
+                        <span class="order-card-value">${formatDate(order.created_at)}</span>
+                    </div>
+                </div>
+                <div class="order-card-actions">
+                    <select onchange="updateStatus('${order.id}', this.value)">
                         ${['pending', 'awaiting_payment', 'paid', 'verified', 'fulfilled', 'cancelled'].map(s =>
                             `<option value="${s}" ${s === order.status ? 'selected' : ''}>${formatStatus(s)}</option>`
                         ).join('')}
                     </select>
-                </td>
-                <td>${screenshotLink}</td>
-                <td>${formatDate(order.created_at)}</td>
-            </tr>
+                </div>
+            </div>
         `;
     }).join('');
 }
