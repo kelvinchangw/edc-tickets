@@ -8,13 +8,16 @@ document.getElementById('lookup-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     hideMessage('msg');
 
-    const name = document.getElementById('name').value.trim();
+    const firstName = document.getElementById('first-name').value.trim();
+    const lastName = document.getElementById('last-name').value.trim();
     const pin = document.getElementById('pin').value;
 
-    if (!name || !pin) {
-        showMessage('msg', 'Please enter your name and PIN', true);
+    if (!firstName || !lastName || !pin) {
+        showMessage('msg', 'Please enter your first name, last name, and PIN', true);
         return;
     }
+
+    const name = firstName + ' ' + lastName;
 
     const btn = document.getElementById('lookup-btn');
     btn.disabled = true;
@@ -30,9 +33,18 @@ document.getElementById('lookup-form').addEventListener('submit', async (e) => {
         if (error) throw error;
 
         if (data.error) {
-            showMessage('msg', data.error, true);
-            btn.disabled = false;
-            btn.textContent = 'Look Up Order';
+            let msg = data.error;
+            if (data.attempts_remaining !== undefined && data.attempts_remaining > 0) {
+                msg += ` (${data.attempts_remaining} attempt${data.attempts_remaining === 1 ? '' : 's'} remaining)`;
+            }
+            showMessage('msg', msg, true);
+            if (data.locked) {
+                btn.disabled = true;
+                btn.textContent = 'Locked';
+            } else {
+                btn.disabled = false;
+                btn.textContent = 'Look Up Order';
+            }
             return;
         }
 
@@ -127,7 +139,7 @@ async function buildModifyOptions(currentType) {
         div.className = 'radio-option';
         div.innerHTML = `
             <input type="radio" name="modify_ticket_type" id="modify-${t.value}" value="${t.value}" ${t.value === currentType ? 'checked' : ''}>
-            <label for="modify-${t.value}">${t.label} — ${priceLabel}</label>
+            <label for="modify-${t.value}">${t.label}<span class="radio-price">${priceLabel}</span></label>
         `;
         ticketOptions.appendChild(div);
     });
@@ -294,7 +306,8 @@ document.getElementById('cancel-btn').addEventListener('click', async () => {
 document.getElementById('back-btn').addEventListener('click', () => {
     document.getElementById('order-area').style.display = 'none';
     document.getElementById('lookup-area').style.display = 'block';
-    document.getElementById('name').value = '';
+    document.getElementById('first-name').value = '';
+    document.getElementById('last-name').value = '';
     document.getElementById('pin').value = '';
     document.getElementById('lookup-btn').disabled = false;
     document.getElementById('lookup-btn').textContent = 'Look Up Order';

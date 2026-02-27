@@ -27,5 +27,6 @@ DROP POLICY IF EXISTS "Anyone can read config" ON edc_config;
 DROP POLICY IF EXISTS "Anyone can submit orders" ON edc_orders;
 
 -- 5. Drop tables
+DROP TABLE IF EXISTS edc_attempts;
 DROP TABLE IF EXISTS edc_orders;
 DROP TABLE IF EXISTS edc_config;

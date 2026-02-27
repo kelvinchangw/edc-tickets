@@ -23,7 +23,7 @@
             div.className = 'radio-option';
             div.innerHTML = `
                 <input type="radio" name="ticket_type" id="ticket-${t.value}" value="${t.value}" ${i === 0 ? 'checked' : ''}>
-                <label for="ticket-${t.value}">${t.label} — ${priceLabel}</label>
+                <label for="ticket-${t.value}">${t.label}<span class="radio-price">${priceLabel}</span></label>
             `;
             ticketOptions.appendChild(div);
         });
@@ -36,20 +36,28 @@
             e.preventDefault();
             hideMessage('msg');
 
-            const name = document.getElementById('name').value.trim();
+            const firstName = document.getElementById('first-name').value.trim();
+            const lastName = document.getElementById('last-name').value.trim();
             const email = document.getElementById('email').value.trim();
             const pin = document.getElementById('pin').value;
             const pinConfirm = document.getElementById('pin-confirm').value;
             const ticketType = document.querySelector('input[name="ticket_type"]:checked').value;
 
             // Validation
-            if (!name) {
-                showMessage('msg', 'Please enter your name', true);
+            if (!firstName || !lastName) {
+                showMessage('msg', 'Please enter your first and last name', true);
                 return;
             }
 
-            if (pin.length < 4 || pin.length > 6) {
-                showMessage('msg', 'PIN must be 4-6 digits', true);
+            if (!email) {
+                showMessage('msg', 'Please enter your email', true);
+                return;
+            }
+
+            const name = firstName + ' ' + lastName;
+
+            if (pin.length !== 4) {
+                showMessage('msg', 'PIN must be exactly 4 digits', true);
                 return;
             }
 
@@ -66,7 +74,7 @@
                 const pinHash = await hashPin(pin);
                 const { data, error } = await db.rpc('submit_order', {
                     p_name: name,
-                    p_email: email || null,
+                    p_email: email,
                     p_pin_hash: pinHash,
                     p_ticket_type: ticketType
                 });

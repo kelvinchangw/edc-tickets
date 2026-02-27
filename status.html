@@ -11,24 +11,31 @@
         <a href="index.html">Home</a>
         <a href="order.html">Submit Order</a>
         <a href="status.html" class="active">Check Order</a>
+        <a href="admin.html">Admin</a>
     </nav>
 
     <div class="container">
         <h1>Check Order</h1>
-        <p>Enter your name and PIN to look up your order.</p>
+        <p>Enter your name and 4 digit PIN to look up your order.</p>
 
         <div id="msg" class="message"></div>
 
         <div id="lookup-area">
             <form id="lookup-form">
-                <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" required placeholder="Your name">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="first-name">First Name</label>
+                        <input type="text" id="first-name" required placeholder="First name">
+                    </div>
+                    <div class="form-group">
+                        <label for="last-name">Last Name</label>
+                        <input type="text" id="last-name" required placeholder="Last name">
+                    </div>
                 </div>
 
                 <div class="form-group">
                     <label for="pin">PIN</label>
-                    <input type="number" id="pin" required placeholder="Your 4-6 digit PIN">
+                    <input type="number" id="pin" required placeholder="Your 4 digit PIN">
                 </div>
 
                 <button type="submit" class="btn btn-primary" id="lookup-btn">Look Up Order</button>
