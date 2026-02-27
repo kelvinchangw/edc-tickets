@@ -63,7 +63,9 @@ function renderDashboard() {
         ga_plus: nonCancelled.filter(o => o.ticket_type === 'ga_plus').length,
         vip: nonCancelled.filter(o => o.ticket_type === 'vip').length,
         pending: nonCancelled.filter(o => o.status === 'pending').length,
+        awaiting: nonCancelled.filter(o => o.status === 'awaiting_payment').length,
         paid: nonCancelled.filter(o => o.status === 'paid').length,
+        verified: nonCancelled.filter(o => o.status === 'verified').length,
         fulfilled: nonCancelled.filter(o => o.status === 'fulfilled').length
     };
 
@@ -89,8 +91,16 @@ function renderDashboard() {
             <div class="stat-label">Pending</div>
         </div>
         <div class="stat-card">
+            <div class="stat-number">${stats.awaiting}</div>
+            <div class="stat-label">Awaiting</div>
+        </div>
+        <div class="stat-card">
             <div class="stat-number">${stats.paid}</div>
             <div class="stat-label">Paid</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number">${stats.verified}</div>
+            <div class="stat-label">Verified</div>
         </div>
         <div class="stat-card">
             <div class="stat-number">${stats.fulfilled}</div>
@@ -122,7 +132,7 @@ function renderDashboard() {
                 <td>${formatTicketType(order.ticket_type)}</td>
                 <td>
                     <select onchange="updateStatus('${order.id}', this.value)" data-order-id="${order.id}">
-                        ${['pending', 'confirmed', 'paid', 'fulfilled', 'cancelled'].map(s =>
+                        ${['pending', 'awaiting_payment', 'paid', 'verified', 'fulfilled', 'cancelled'].map(s =>
                             `<option value="${s}" ${s === order.status ? 'selected' : ''}>${formatStatus(s)}</option>`
                         ).join('')}
                     </select>

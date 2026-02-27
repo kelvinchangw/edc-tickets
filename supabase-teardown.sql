@@ -16,6 +16,8 @@ DROP FUNCTION IF EXISTS admin_update_config(TEXT, TEXT, TEXT);
 
 -- 2. Drop storage policies
 DROP POLICY IF EXISTS "Anyone can upload screenshots" ON storage.objects;
+DROP POLICY IF EXISTS "Anyone can upload image screenshots" ON storage.objects;
+DROP POLICY IF EXISTS "Anyone can update screenshots" ON storage.objects;
 DROP POLICY IF EXISTS "Anyone can view screenshots" ON storage.objects;
 
 -- 3. Delete all files in the bucket, then delete the bucket
@@ -24,6 +26,7 @@ DELETE FROM storage.buckets WHERE id = 'edc-zelle-screenshots';
 
 -- 4. Drop RLS policies
 DROP POLICY IF EXISTS "Anyone can read config" ON edc_config;
+DROP POLICY IF EXISTS "Anyone can read config (except admin password)" ON edc_config;
 DROP POLICY IF EXISTS "Anyone can submit orders" ON edc_orders;
 
 -- 5. Drop tables

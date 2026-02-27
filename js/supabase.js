@@ -36,8 +36,9 @@ function formatTicketType(type) {
 function formatStatus(status) {
     const labels = {
         pending: 'Pending',
-        confirmed: 'Confirmed',
+        awaiting_payment: 'Awaiting Payment',
         paid: 'Paid',
+        verified: 'Verified',
         fulfilled: 'Fulfilled',
         cancelled: 'Cancelled'
     };

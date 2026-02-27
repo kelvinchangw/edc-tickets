@@ -381,12 +381,25 @@ select {
 }
 
 .status-pending { background: rgba(255, 170, 0, 0.1); color: var(--warning); border: 1px solid rgba(255, 170, 0, 0.3); }
-.status-confirmed { background: rgba(0, 221, 255, 0.1); color: var(--cyan); border: 1px solid rgba(0, 221, 255, 0.3); }
-.status-paid { background: rgba(0, 255, 136, 0.1); color: var(--success); border: 1px solid rgba(0, 255, 136, 0.3); }
+.status-awaiting_payment { background: rgba(0, 221, 255, 0.1); color: var(--cyan); border: 1px solid rgba(0, 221, 255, 0.3); }
+.status-paid { background: rgba(255, 170, 0, 0.1); color: var(--warning); border: 1px solid rgba(255, 170, 0, 0.3); }
+.status-verified { background: rgba(0, 255, 136, 0.1); color: var(--success); border: 1px solid rgba(0, 255, 136, 0.3); }
 .status-fulfilled { background: rgba(124, 92, 252, 0.1); color: var(--accent); border: 1px solid rgba(124, 92, 252, 0.3); }
 .status-cancelled { background: rgba(255, 34, 85, 0.1); color: var(--error); border: 1px solid rgba(255, 34, 85, 0.3); }
 
 /* Order details */
+/* FAQ */
+.faq-item h2 {
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.faq-answer {
+    color: var(--text) !important;
+    font-size: 0.85rem;
+    margin-bottom: 0;
+}
+
 .order-detail {
     display: flex;
     justify-content: space-between;
