@@ -55,13 +55,14 @@ nav {
 nav a {
     color: var(--text-dim);
     text-decoration: none;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     font-weight: 500;
-    padding: 0.4rem 0.75rem;
+    padding: 0.4rem 0.5rem;
     border: 1px solid transparent;
     transition: all 0.2s;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.05em;
+    white-space: nowrap;
 }
 
 nav a:hover {
@@ -643,7 +644,15 @@ select {
     }
 
     nav {
-        flex-wrap: wrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 0.5rem 0.75rem;
+        gap: 0.15rem;
+    }
+
+    nav a {
+        font-size: 0.65rem;
+        padding: 0.35rem 0.4rem;
     }
 }
 
