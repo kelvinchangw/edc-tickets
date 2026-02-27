@@ -22,7 +22,7 @@ document.getElementById('lookup-form').addEventListener('submit', async (e) => {
 
     try {
         const pinHash = await hashPin(pin);
-        const { data, error } = await supabase.rpc('lookup_order', {
+        const { data, error } = await db.rpc('lookup_order', {
             p_name: name,
             p_pin_hash: pinHash
         });
@@ -158,14 +158,14 @@ document.getElementById('upload-btn').addEventListener('click', async () => {
         const ext = selectedFile.name.split('.').pop();
         const filePath = `${currentOrder.id}.${ext}`;
 
-        const { error: uploadError } = await supabase.storage
+        const { error: uploadError } = await db.storage
             .from('edc-zelle-screenshots')
             .upload(filePath, selectedFile, { upsert: true });
 
         if (uploadError) throw uploadError;
 
         // Save path to order
-        const { data, error } = await supabase.rpc('save_zelle_screenshot', {
+        const { data, error } = await db.rpc('save_zelle_screenshot', {
             p_name: currentName,
             p_pin_hash: currentPinHash,
             p_screenshot_url: filePath
@@ -181,7 +181,7 @@ document.getElementById('upload-btn').addEventListener('click', async () => {
 
         showMessage('msg', 'Screenshot uploaded!', false);
         // Refresh order display
-        const refreshed = await supabase.rpc('lookup_order', {
+        const refreshed = await db.rpc('lookup_order', {
             p_name: currentName,
             p_pin_hash: currentPinHash
         });
@@ -210,7 +210,7 @@ document.getElementById('save-btn').addEventListener('click', async () => {
     hideMessage('msg');
 
     try {
-        const { data, error } = await supabase.rpc('update_order', {
+        const { data, error } = await db.rpc('update_order', {
             p_name: currentName,
             p_pin_hash: currentPinHash,
             p_ticket_type: newType
@@ -226,7 +226,7 @@ document.getElementById('save-btn').addEventListener('click', async () => {
 
         showMessage('msg', 'Order updated!', false);
         // Refresh
-        const refreshed = await supabase.rpc('lookup_order', {
+        const refreshed = await db.rpc('lookup_order', {
             p_name: currentName,
             p_pin_hash: currentPinHash
         });
@@ -254,7 +254,7 @@ document.getElementById('cancel-btn').addEventListener('click', async () => {
     hideMessage('msg');
 
     try {
-        const { data, error } = await supabase.rpc('cancel_order', {
+        const { data, error } = await db.rpc('cancel_order', {
             p_name: currentName,
             p_pin_hash: currentPinHash
         });
@@ -269,7 +269,7 @@ document.getElementById('cancel-btn').addEventListener('click', async () => {
 
         showMessage('msg', 'Order cancelled.', false);
         // Refresh
-        const refreshed = await supabase.rpc('lookup_order', {
+        const refreshed = await db.rpc('lookup_order', {
             p_name: currentName,
             p_pin_hash: currentPinHash
         });

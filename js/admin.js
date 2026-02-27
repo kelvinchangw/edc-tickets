@@ -9,7 +9,7 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     adminPassword = document.getElementById('admin-pw').value;
 
     try {
-        const { data, error } = await supabase.rpc('admin_get_orders', {
+        const { data, error } = await db.rpc('admin_get_orders', {
             p_password: adminPassword
         });
 
@@ -136,7 +136,7 @@ function renderDashboard() {
 // Update order status
 async function updateStatus(orderId, newStatus) {
     try {
-        const { data, error } = await supabase.rpc('admin_update_status', {
+        const { data, error } = await db.rpc('admin_update_status', {
             p_password: adminPassword,
             p_order_id: orderId,
             p_status: newStatus
@@ -180,7 +180,7 @@ document.getElementById('save-config-btn').addEventListener('click', async () =>
 
     try {
         for (const u of updates) {
-            const { data, error } = await supabase.rpc('admin_update_config', {
+            const { data, error } = await db.rpc('admin_update_config', {
                 p_password: adminPassword,
                 p_key: u.key,
                 p_value: u.value
@@ -202,7 +202,7 @@ document.getElementById('save-config-btn').addEventListener('click', async () =>
 // Refresh orders
 async function refreshOrders() {
     try {
-        const { data, error } = await supabase.rpc('admin_get_orders', {
+        const { data, error } = await db.rpc('admin_get_orders', {
             p_password: adminPassword
         });
         if (error) throw error;

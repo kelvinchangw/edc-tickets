@@ -64,7 +64,7 @@
 
             try {
                 const pinHash = await hashPin(pin);
-                const { data, error } = await supabase.rpc('submit_order', {
+                const { data, error } = await db.rpc('submit_order', {
                     p_name: name,
                     p_email: email || null,
                     p_pin_hash: pinHash,

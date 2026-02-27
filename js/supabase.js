@@ -1,10 +1,10 @@
 const SUPABASE_URL = 'https://njmsbokrtdqthuqimgjb.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_F-uLfhubtLf5lPc_Vrx7hw_En8XddCG';
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 async function getConfig() {
-    const { data, error } = await supabase
+    const { data, error } = await db
         .from('edc_config')
         .select('key, value');
     if (error) throw error;
