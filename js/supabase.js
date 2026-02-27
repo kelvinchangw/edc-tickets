@@ -59,3 +59,10 @@ function hideMessage(containerId) {
     const el = document.getElementById(containerId);
     el.style.display = 'none';
 }
+
+// Clear invalid state on input
+document.addEventListener('input', (e) => {
+    if (e.target.classList.contains('invalid')) {
+        e.target.classList.remove('invalid');
+    }
+});

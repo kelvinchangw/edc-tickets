@@ -12,8 +12,16 @@ document.getElementById('lookup-form').addEventListener('submit', async (e) => {
     const lastName = document.getElementById('last-name').value.trim();
     const pin = document.getElementById('pin').value;
 
-    if (!firstName || !lastName || !pin) {
-        showMessage('msg', 'Please enter your first name, last name, and PIN', true);
+    // Clear previous validation
+    document.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
+
+    let hasError = false;
+    if (!firstName) { document.getElementById('first-name').classList.add('invalid'); hasError = true; }
+    if (!lastName) { document.getElementById('last-name').classList.add('invalid'); hasError = true; }
+    if (!pin) { document.getElementById('pin').classList.add('invalid'); hasError = true; }
+
+    if (hasError) {
+        showMessage('msg', 'Please fill in all fields', true);
         return;
     }
 

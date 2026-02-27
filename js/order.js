@@ -43,28 +43,38 @@
             const pinConfirm = document.getElementById('pin-confirm').value;
             const ticketType = document.querySelector('input[name="ticket_type"]:checked').value;
 
+            // Clear previous validation
+            document.querySelectorAll('.invalid').forEach(el => el.classList.remove('invalid'));
+
             // Validation
-            if (!firstName || !lastName) {
-                showMessage('msg', 'Please enter your first and last name', true);
-                return;
-            }
+            let hasError = false;
+            const fields = [
+                { id: 'first-name', valid: !!firstName },
+                { id: 'last-name', valid: !!lastName },
+                { id: 'email', valid: !!email },
+                { id: 'pin', valid: pin.length === 4 },
+                { id: 'pin-confirm', valid: !!pinConfirm }
+            ];
 
-            if (!email) {
-                showMessage('msg', 'Please enter your email', true);
-                return;
-            }
+            fields.forEach(f => {
+                if (!f.valid) {
+                    document.getElementById(f.id).classList.add('invalid');
+                    hasError = true;
+                }
+            });
 
-            const name = firstName + ' ' + lastName;
-
-            if (pin.length !== 4) {
-                showMessage('msg', 'PIN must be exactly 4 digits', true);
+            if (hasError) {
+                showMessage('msg', 'Please fill in all required fields', true);
                 return;
             }
 
             if (pin !== pinConfirm) {
+                document.getElementById('pin-confirm').classList.add('invalid');
                 showMessage('msg', 'PINs do not match', true);
                 return;
             }
+
+            const name = firstName + ' ' + lastName;
 
             const submitBtn = document.getElementById('submit-btn');
             submitBtn.disabled = true;
