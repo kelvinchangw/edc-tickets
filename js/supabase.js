@@ -21,6 +21,13 @@ async function hashPin(pin) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+function esc(str) {
+    if (!str) return '';
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
 function formatTicketType(type) {
     const labels = { ga: 'GA', ga_plus: 'GA+', vip: 'VIP (Rare)' };
     return labels[type] || type;

@@ -6,7 +6,8 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     hideMessage('msg');
 
-    adminPassword = document.getElementById('admin-pw').value;
+    const rawPassword = document.getElementById('admin-pw').value;
+    adminPassword = await hashPin(rawPassword);
 
     try {
         const { data, error } = await db.rpc('admin_get_orders', {
@@ -111,13 +112,13 @@ function renderDashboard() {
 
     tbody.innerHTML = filtered.map(order => {
         const screenshotLink = order.zelle_screenshot_url
-            ? `<a href="${SUPABASE_URL}/storage/v1/object/public/edc-zelle-screenshots/${order.zelle_screenshot_url}" target="_blank" class="screenshot-link">View</a>`
+            ? `<a href="${SUPABASE_URL}/storage/v1/object/public/edc-zelle-screenshots/${encodeURI(order.zelle_screenshot_url)}" target="_blank" class="screenshot-link">View</a>`
             : '—';
 
         return `
             <tr>
-                <td><strong>${order.buyer_name}</strong></td>
-                <td>${order.email || '—'}</td>
+                <td><strong>${esc(order.buyer_name)}</strong></td>
+                <td>${esc(order.email) || '—'}</td>
                 <td>${formatTicketType(order.ticket_type)}</td>
                 <td>
                     <select onchange="updateStatus('${order.id}', this.value)" data-order-id="${order.id}">

@@ -103,7 +103,7 @@
                 document.getElementById('order-summary').innerHTML = `
                     <div class="order-detail">
                         <span class="order-detail-label">Name</span>
-                        <span class="order-detail-value">${order.buyer_name}</span>
+                        <span class="order-detail-value">${esc(order.buyer_name)}</span>
                     </div>
                     <div class="order-detail">
                         <span class="order-detail-label">Ticket</span>
