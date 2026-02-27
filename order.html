@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Order — EDC Tickets</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="order.html" class="active">Submit Order</a>
+        <a href="status.html">Check Order</a>
+    </nav>
+
+    <div class="container">
+        <div class="loading" id="loading">Loading...</div>
+
+        <div id="closed-msg" style="display:none">
+            <h1>Orders Closed</h1>
+            <p>The order deadline has passed. You can still check your existing order status.</p>
+            <a href="status.html" class="btn btn-secondary">Check Order</a>
+        </div>
+
+        <div id="form-area" style="display:none">
+            <h1>Submit Order</h1>
+            <p>One ticket per person. Your PIN is how you'll look up and modify your order later.</p>
+
+            <div id="msg" class="message"></div>
+
+            <form id="order-form">
+                <div class="form-group">
+                    <label for="name">Full Name</label>
+                    <input type="text" id="name" required placeholder="Your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email <span style="color: var(--text-dim)">(optional)</span></label>
+                    <input type="email" id="email" placeholder="For future status notifications">
+                    <div class="hint">We'll email you when your order status changes (coming soon)</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pin">PIN</label>
+                    <input type="number" id="pin" required placeholder="4-6 digit PIN" min="1000" max="999999">
+                    <div class="hint">Choose a 4-6 digit number you'll remember</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="pin-confirm">Confirm PIN</label>
+                    <input type="number" id="pin-confirm" required placeholder="Re-enter PIN">
+                </div>
+
+                <div class="form-group">
+                    <label>Ticket Type</label>
+                    <div class="radio-group" id="ticket-options"></div>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="submit-btn">Submit Order</button>
+            </form>
+
+            <div id="success-area" style="display:none">
+                <div class="card">
+                    <h2>Order Submitted!</h2>
+                    <div id="order-summary"></div>
+                    <p style="margin-top:1rem">Remember your PIN to check or modify your order.</p>
+                    <div class="btn-group">
+                        <a href="status.html" class="btn btn-secondary">Check Order</a>
+                        <a href="index.html" class="btn btn-secondary">Back Home</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/order.js"></script>
+</body>
+</html>

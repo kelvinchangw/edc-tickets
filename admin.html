@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin — EDC Tickets</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="order.html">Submit Order</a>
+        <a href="status.html">Check Order</a>
+        <a href="admin.html" class="active">Admin</a>
+    </nav>
+
+    <div class="container">
+        <div id="msg" class="message"></div>
+
+        <!-- Login -->
+        <div id="login-area">
+            <h1>Admin Panel</h1>
+            <p>Enter the admin password to manage orders.</p>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="admin-pw">Password</label>
+                    <input type="password" id="admin-pw" required placeholder="Admin password">
+                </div>
+                <button type="submit" class="btn btn-primary">Log In</button>
+            </form>
+        </div>
+
+        <!-- Dashboard -->
+        <div id="dashboard" style="display:none">
+            <h1>Orders Dashboard</h1>
+
+            <div class="stats-grid" id="stats"></div>
+
+            <div class="filter-bar">
+                <select id="filter-status">
+                    <option value="">All Statuses</option>
+                    <option value="pending">Pending</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="paid">Paid</option>
+                    <option value="fulfilled">Fulfilled</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+                <select id="filter-type">
+                    <option value="">All Types</option>
+                    <option value="ga">GA</option>
+                    <option value="ga_plus">GA+</option>
+                    <option value="vip">VIP</option>
+                </select>
+            </div>
+
+            <div class="card">
+                <div class="table-container">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Ticket</th>
+                                <th>Status</th>
+                                <th>Zelle</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="orders-body"></tbody>
+                    </table>
+                </div>
+                <p id="no-orders" style="display:none; text-align:center; padding:2rem; color:var(--text-dim)">No orders yet</p>
+            </div>
+
+            <div class="card">
+                <h2>Settings</h2>
+                <div class="form-group">
+                    <label>Orders Open</label>
+                    <select id="config-orders-open">
+                        <option value="true">Yes</option>
+                        <option value="false">No</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>GA Price</label>
+                    <input type="text" id="config-ga-price" placeholder="e.g. 450">
+                </div>
+                <div class="form-group">
+                    <label>GA+ Price</label>
+                    <input type="text" id="config-ga-plus-price" placeholder="e.g. 600">
+                </div>
+                <div class="form-group">
+                    <label>VIP Price</label>
+                    <input type="text" id="config-vip-price" placeholder="e.g. 900">
+                </div>
+                <button class="btn btn-primary" id="save-config-btn">Save Settings</button>
+            </div>
+
+            <button class="btn btn-secondary" id="logout-btn" style="margin-top:1rem">Log Out</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+</html>

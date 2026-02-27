@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EDC Tickets</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav>
+        <a href="index.html" class="active">Home</a>
+        <a href="order.html">Submit Order</a>
+        <a href="status.html">Check Order</a>
+    </nav>
+
+    <div class="container">
+        <div class="loading" id="loading">Loading...</div>
+
+        <div id="content" style="display:none">
+            <h1 id="event-name">EDC Las Vegas 2026</h1>
+            <p>Submit your ticket order below. One ticket per person — if you're buying for a friend, have them submit their own order.</p>
+
+            <div id="deadline-banner"></div>
+
+            <div class="card">
+                <h2>Ticket Types</h2>
+                <div id="ticket-list"></div>
+            </div>
+
+            <div id="cta-area"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+    <script>
+        (async () => {
+            try {
+                const config = await getConfig();
+
+                const eventName = config.event_name || 'EDC Las Vegas 2026';
+                document.getElementById('event-name').textContent = eventName;
+                document.title = eventName;
+
+                const deadline = new Date(config.modification_deadline);
+                const ordersOpen = config.orders_open === 'true' && isBeforeDeadline(config.modification_deadline);
+
+                // Deadline banner
+                const bannerEl = document.getElementById('deadline-banner');
+                if (ordersOpen) {
+                    bannerEl.className = 'deadline-banner';
+                    bannerEl.textContent = `Orders open until ${deadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at ${deadline.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}`;
+                } else {
+                    bannerEl.className = 'closed-banner';
+                    bannerEl.textContent = 'Orders are closed';
+                }
+
+                // Ticket types
+                const ticketList = document.getElementById('ticket-list');
+                const types = [
+                    { key: 'ga_price', name: 'GA', tag: '' },
+                    { key: 'ga_plus_price', name: 'GA+', tag: '' },
+                    { key: 'vip_price', name: 'VIP', tag: '(Rare)' }
+                ];
+
+                types.forEach(t => {
+                    const price = config[t.key];
+                    const div = document.createElement('div');
+                    div.className = 'ticket-type';
+                    div.innerHTML = `
+                        <span>
+                            <span class="ticket-name">${t.name}</span>
+                            ${t.tag ? `<span class="ticket-tag">${t.tag}</span>` : ''}
+                        </span>
+                        <span class="ticket-price">${price === 'TBD' ? 'TBD' : '$' + price}</span>
+                    `;
+                    ticketList.appendChild(div);
+                });
+
+                // CTAs
+                const ctaArea = document.getElementById('cta-area');
+                if (ordersOpen) {
+                    ctaArea.innerHTML = `
+                        <div class="cta-group">
+                            <a href="order.html" class="btn btn-primary">Submit Order</a>
+                            <a href="status.html" class="btn btn-secondary">Check Order</a>
+                        </div>
+                    `;
+                } else {
+                    ctaArea.innerHTML = `
+                        <div class="cta-group">
+                            <a href="status.html" class="btn btn-secondary">Check Order Status</a>
+                        </div>
+                    `;
+                }
+
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('content').style.display = 'block';
+            } catch (err) {
+                document.getElementById('loading').textContent = 'Failed to load. Please refresh.';
+                console.error(err);
+            }
+        })();
+    </script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+let currentOrder = null;
+let currentPinHash = null;
+let currentName = null;
+let selectedFile = null;
+
+// Lookup form
+document.getElementById('lookup-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    hideMessage('msg');
+
+    const name = document.getElementById('name').value.trim();
+    const pin = document.getElementById('pin').value;
+
+    if (!name || !pin) {
+        showMessage('msg', 'Please enter your name and PIN', true);
+        return;
+    }
+
+    const btn = document.getElementById('lookup-btn');
+    btn.disabled = true;
+    btn.textContent = 'Looking up...';
+
+    try {
+        const pinHash = await hashPin(pin);
+        const { data, error } = await supabase.rpc('lookup_order', {
+            p_name: name,
+            p_pin_hash: pinHash
+        });
+
+        if (error) throw error;
+
+        if (data.error) {
+            showMessage('msg', data.error, true);
+            btn.disabled = false;
+            btn.textContent = 'Look Up Order';
+            return;
+        }
+
+        currentOrder = data.order;
+        currentPinHash = pinHash;
+        currentName = name;
+        renderOrder(data);
+
+    } catch (err) {
+        showMessage('msg', 'Something went wrong. Please try again.', true);
+        console.error(err);
+        btn.disabled = false;
+        btn.textContent = 'Look Up Order';
+    }
+});
+
+function renderOrder(data) {
+    const order = data.order;
+    const canModify = data.can_modify;
+
+    // Order details
+    document.getElementById('order-details').innerHTML = `
+        <div class="order-detail">
+            <span class="order-detail-label">Name</span>
+            <span class="order-detail-value">${order.buyer_name}</span>
+        </div>
+        <div class="order-detail">
+            <span class="order-detail-label">Ticket</span>
+            <span class="order-detail-value">${formatTicketType(order.ticket_type)}</span>
+        </div>
+        <div class="order-detail">
+            <span class="order-detail-label">Status</span>
+            <span class="status-badge status-${order.status}">${formatStatus(order.status)}</span>
+        </div>
+        <div class="order-detail">
+            <span class="order-detail-label">Submitted</span>
+            <span class="order-detail-value">${formatDate(order.created_at)}</span>
+        </div>
+        ${order.updated_at !== order.created_at ? `
+        <div class="order-detail">
+            <span class="order-detail-label">Last Updated</span>
+            <span class="order-detail-value">${formatDate(order.updated_at)}</span>
+        </div>
+        ` : ''}
+    `;
+
+    // Screenshot section — always show so they can upload Zelle proof
+    const screenshotSection = document.getElementById('screenshot-section');
+    const existingScreenshot = document.getElementById('existing-screenshot');
+
+    if (order.zelle_screenshot_url) {
+        const publicUrl = `${SUPABASE_URL}/storage/v1/object/public/edc-zelle-screenshots/${order.zelle_screenshot_url}`;
+        existingScreenshot.innerHTML = `
+            <div class="screenshot-preview">
+                <img src="${publicUrl}" alt="Zelle screenshot">
+            </div>
+            <p style="margin-top:0.75rem; font-size:0.85rem">Upload a new screenshot to replace:</p>
+        `;
+    } else {
+        existingScreenshot.innerHTML = '';
+    }
+    screenshotSection.style.display = order.status !== 'cancelled' ? 'block' : 'none';
+
+    // Modify section
+    const modifySection = document.getElementById('modify-section');
+    if (canModify) {
+        modifySection.style.display = 'block';
+        buildModifyOptions(order.ticket_type);
+    } else {
+        modifySection.style.display = 'none';
+    }
+
+    // Show order area, hide lookup
+    document.getElementById('lookup-area').style.display = 'none';
+    document.getElementById('order-area').style.display = 'block';
+}
+
+async function buildModifyOptions(currentType) {
+    const config = await getConfig();
+    const ticketOptions = document.getElementById('modify-ticket-options');
+    ticketOptions.innerHTML = '';
+
+    const types = [
+        { value: 'ga', label: 'GA', price: config.ga_price },
+        { value: 'ga_plus', label: 'GA+', price: config.ga_plus_price },
+        { value: 'vip', label: 'VIP (Rare)', price: config.vip_price }
+    ];
+
+    types.forEach(t => {
+        const priceLabel = t.price === 'TBD' ? 'TBD' : '$' + t.price;
+        const div = document.createElement('div');
+        div.className = 'radio-option';
+        div.innerHTML = `
+            <input type="radio" name="modify_ticket_type" id="modify-${t.value}" value="${t.value}" ${t.value === currentType ? 'checked' : ''}>
+            <label for="modify-${t.value}">${t.label} — ${priceLabel}</label>
+        `;
+        ticketOptions.appendChild(div);
+    });
+}
+
+// File upload handling
+document.getElementById('file-drop').addEventListener('click', () => {
+    document.getElementById('screenshot-input').click();
+});
+
+document.getElementById('screenshot-input').addEventListener('change', (e) => {
+    selectedFile = e.target.files[0];
+    if (selectedFile) {
+        document.querySelector('.file-upload-label').innerHTML = `Selected: <span>${selectedFile.name}</span>`;
+        document.getElementById('upload-btn').style.display = 'block';
+    }
+});
+
+// Upload screenshot
+document.getElementById('upload-btn').addEventListener('click', async () => {
+    if (!selectedFile || !currentOrder) return;
+
+    const btn = document.getElementById('upload-btn');
+    btn.disabled = true;
+    btn.textContent = 'Uploading...';
+
+    try {
+        const ext = selectedFile.name.split('.').pop();
+        const filePath = `${currentOrder.id}.${ext}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('edc-zelle-screenshots')
+            .upload(filePath, selectedFile, { upsert: true });
+
+        if (uploadError) throw uploadError;
+
+        // Save path to order
+        const { data, error } = await supabase.rpc('save_zelle_screenshot', {
+            p_name: currentName,
+            p_pin_hash: currentPinHash,
+            p_screenshot_url: filePath
+        });
+
+        if (error) throw error;
+        if (data.error) {
+            showMessage('msg', data.error, true);
+            btn.disabled = false;
+            btn.textContent = 'Upload Screenshot';
+            return;
+        }
+
+        showMessage('msg', 'Screenshot uploaded!', false);
+        // Refresh order display
+        const refreshed = await supabase.rpc('lookup_order', {
+            p_name: currentName,
+            p_pin_hash: currentPinHash
+        });
+        if (refreshed.data && refreshed.data.order) {
+            currentOrder = refreshed.data.order;
+            renderOrder(refreshed.data);
+        }
+        selectedFile = null;
+        btn.disabled = false;
+        btn.textContent = 'Upload Screenshot';
+
+    } catch (err) {
+        showMessage('msg', 'Upload failed. Please try again.', true);
+        console.error(err);
+        btn.disabled = false;
+        btn.textContent = 'Upload Screenshot';
+    }
+});
+
+// Save changes (ticket type)
+document.getElementById('save-btn').addEventListener('click', async () => {
+    const newType = document.querySelector('input[name="modify_ticket_type"]:checked').value;
+    const btn = document.getElementById('save-btn');
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    hideMessage('msg');
+
+    try {
+        const { data, error } = await supabase.rpc('update_order', {
+            p_name: currentName,
+            p_pin_hash: currentPinHash,
+            p_ticket_type: newType
+        });
+
+        if (error) throw error;
+        if (data.error) {
+            showMessage('msg', data.error, true);
+            btn.disabled = false;
+            btn.textContent = 'Save Changes';
+            return;
+        }
+
+        showMessage('msg', 'Order updated!', false);
+        // Refresh
+        const refreshed = await supabase.rpc('lookup_order', {
+            p_name: currentName,
+            p_pin_hash: currentPinHash
+        });
+        if (refreshed.data && refreshed.data.order) {
+            currentOrder = refreshed.data.order;
+            renderOrder(refreshed.data);
+        }
+
+    } catch (err) {
+        showMessage('msg', 'Update failed. Please try again.', true);
+        console.error(err);
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Save Changes';
+});
+
+// Cancel order
+document.getElementById('cancel-btn').addEventListener('click', async () => {
+    if (!confirm('Are you sure you want to cancel your order? This cannot be undone.')) return;
+
+    const btn = document.getElementById('cancel-btn');
+    btn.disabled = true;
+    btn.textContent = 'Cancelling...';
+    hideMessage('msg');
+
+    try {
+        const { data, error } = await supabase.rpc('cancel_order', {
+            p_name: currentName,
+            p_pin_hash: currentPinHash
+        });
+
+        if (error) throw error;
+        if (data.error) {
+            showMessage('msg', data.error, true);
+            btn.disabled = false;
+            btn.textContent = 'Cancel Order';
+            return;
+        }
+
+        showMessage('msg', 'Order cancelled.', false);
+        // Refresh
+        const refreshed = await supabase.rpc('lookup_order', {
+            p_name: currentName,
+            p_pin_hash: currentPinHash
+        });
+        if (refreshed.data && refreshed.data.order) {
+            currentOrder = refreshed.data.order;
+            renderOrder(refreshed.data);
+        } else {
+            // Order is cancelled, go back to lookup
+            document.getElementById('order-area').style.display = 'none';
+            document.getElementById('lookup-area').style.display = 'block';
+        }
+
+    } catch (err) {
+        showMessage('msg', 'Cancel failed. Please try again.', true);
+        console.error(err);
+        btn.disabled = false;
+        btn.textContent = 'Cancel Order';
+    }
+});
+
+// Back button
+document.getElementById('back-btn').addEventListener('click', () => {
+    document.getElementById('order-area').style.display = 'none';
+    document.getElementById('lookup-area').style.display = 'block';
+    document.getElementById('name').value = '';
+    document.getElementById('pin').value = '';
+    document.getElementById('lookup-btn').disabled = false;
+    document.getElementById('lookup-btn').textContent = 'Look Up Order';
+    hideMessage('msg');
+    currentOrder = null;
+    currentPinHash = null;
+    currentName = null;
+    selectedFile = null;
+});
