@@ -76,33 +76,33 @@ function renderDashboard() {
                 </div>
             </div>
             <div class="stats-row stats-row-2">
-                <div class="stat-card">
+                <div class="stat-card stat-ga">
                     <div class="stat-number">${stats.ga}</div>
                     <div class="stat-label">GA</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card stat-gaplus">
                     <div class="stat-number">${stats.ga_plus}</div>
                     <div class="stat-label">GA+</div>
                 </div>
             </div>
             <div class="stats-row stats-row-5">
-                <div class="stat-card">
+                <div class="stat-card stat-pending">
                     <div class="stat-number">${stats.pending}</div>
                     <div class="stat-label">Pending</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card stat-awaiting">
                     <div class="stat-number">${stats.awaiting}</div>
                     <div class="stat-label">Awaiting</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card stat-paid">
                     <div class="stat-number">${stats.paid}</div>
                     <div class="stat-label">Paid</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card stat-verified">
                     <div class="stat-number">${stats.verified}</div>
                     <div class="stat-label">Verified</div>
                 </div>
-                <div class="stat-card">
+                <div class="stat-card stat-fulfilled">
                     <div class="stat-number">${stats.fulfilled}</div>
                     <div class="stat-label">Done</div>
                 </div>

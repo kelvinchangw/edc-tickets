@@ -501,6 +501,21 @@ select {
     background: var(--accent-glow);
 }
 
+.stat-ga { border-color: rgba(168,85,247,0.4); background: rgba(168,85,247,0.06); }
+.stat-ga .stat-number { color: #c084fc; }
+.stat-gaplus { border-color: rgba(96,165,250,0.4); background: rgba(96,165,250,0.06); }
+.stat-gaplus .stat-number { color: #93bbfd; }
+.stat-pending { border-color: rgba(251,191,36,0.35); background: rgba(251,191,36,0.05); }
+.stat-pending .stat-number { color: #fbbf24; }
+.stat-awaiting { border-color: rgba(251,146,60,0.35); background: rgba(251,146,60,0.05); }
+.stat-awaiting .stat-number { color: #fb923c; }
+.stat-paid { border-color: rgba(96,165,250,0.35); background: rgba(96,165,250,0.05); }
+.stat-paid .stat-number { color: #60a5fa; }
+.stat-verified { border-color: rgba(52,211,153,0.35); background: rgba(52,211,153,0.05); }
+.stat-verified .stat-number { color: #34d399; }
+.stat-fulfilled { border-color: rgba(168,85,247,0.35); background: rgba(168,85,247,0.05); }
+.stat-fulfilled .stat-number { color: #a855f7; }
+
 .stat-card::after {
     content: '';
     position: absolute;
