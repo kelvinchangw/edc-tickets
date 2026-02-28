@@ -615,6 +615,37 @@ select {
     color: var(--warning);
 }
 
+/* Countdown */
+.countdown {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.75rem;
+}
+
+.countdown-segment {
+    flex: 1;
+    text-align: center;
+    background: rgba(255, 170, 0, 0.06);
+    border: 1px solid rgba(255, 170, 0, 0.2);
+    padding: 0.5rem 0.25rem;
+}
+
+.countdown-number {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--warning);
+    line-height: 1;
+    text-shadow: 0 0 15px rgba(255, 170, 0, 0.3);
+}
+
+.countdown-label {
+    font-size: 0.55rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-top: 0.25rem;
+}
+
 .closed-banner {
     background: rgba(255, 34, 85, 0.06);
     border: 1px solid rgba(255, 34, 85, 0.3);
