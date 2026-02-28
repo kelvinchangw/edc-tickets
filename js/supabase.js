@@ -29,7 +29,7 @@ function esc(str) {
 }
 
 function formatTicketType(type) {
-    const labels = { ga: 'GA', ga_plus: 'GA+', vip: 'VIP (Rare)' };
+    const labels = { ga: 'GA', ga_plus: 'GA+' };
     return labels[type] || type;
 }
 

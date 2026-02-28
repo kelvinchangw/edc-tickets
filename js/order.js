@@ -13,8 +13,7 @@
         const ticketOptions = document.getElementById('ticket-options');
         const types = [
             { value: 'ga', label: 'GA', price: config.ga_price },
-            { value: 'ga_plus', label: 'GA+', price: config.ga_plus_price },
-            { value: 'vip', label: 'VIP (Rare)', price: config.vip_price }
+            { value: 'ga_plus', label: 'GA+', price: config.ga_plus_price }
         ];
 
         types.forEach((t, i) => {

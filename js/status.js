@@ -97,9 +97,15 @@ function renderOrder(data) {
             <span class="order-detail-value">${formatDate(order.updated_at)}</span>
         </div>
         ` : ''}
+        ${order.status === 'awaiting_payment' ? `
+        <div class="payment-notice" style="margin-top:1.25rem;padding:1rem 1.25rem;background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.3);border-radius:10px;">
+            <p style="margin:0 0 0.5rem 0;color:#fb923c;font-weight:600;">Payment Instructions</p>
+            <p style="margin:0;color:#ccc;font-size:0.9rem;">Please send your Zelle payment to <strong style="color:#fff;">(702) 330-7976</strong> and upload a screenshot below as proof of payment.</p>
+        </div>
+        ` : ''}
     `;
 
-    // Screenshot section — always show so they can upload Zelle proof
+    // Screenshot section - always show so they can upload Zelle proof
     const screenshotSection = document.getElementById('screenshot-section');
     const existingScreenshot = document.getElementById('existing-screenshot');
 
@@ -138,7 +144,6 @@ async function buildModifyOptions(currentType) {
     const types = [
         { value: 'ga', label: 'GA', price: config.ga_price },
         { value: 'ga_plus', label: 'GA+', price: config.ga_plus_price },
-        { value: 'vip', label: 'VIP (Rare)', price: config.vip_price }
     ];
 
     types.forEach(t => {

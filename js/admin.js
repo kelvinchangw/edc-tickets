@@ -41,7 +41,6 @@ async function loadConfig() {
         document.getElementById('config-orders-open').value = config.orders_open;
         document.getElementById('config-ga-price').value = config.ga_price || '';
         document.getElementById('config-ga-plus-price').value = config.ga_plus_price || '';
-        document.getElementById('config-vip-price').value = config.vip_price || '';
     } catch (err) {
         console.error('Failed to load config:', err);
     }
@@ -61,7 +60,6 @@ function renderDashboard() {
         total: nonCancelled.length,
         ga: nonCancelled.filter(o => o.ticket_type === 'ga').length,
         ga_plus: nonCancelled.filter(o => o.ticket_type === 'ga_plus').length,
-        vip: nonCancelled.filter(o => o.ticket_type === 'vip').length,
         pending: nonCancelled.filter(o => o.status === 'pending').length,
         awaiting: nonCancelled.filter(o => o.status === 'awaiting_payment').length,
         paid: nonCancelled.filter(o => o.status === 'paid').length,
@@ -77,7 +75,7 @@ function renderDashboard() {
                     <div class="stat-label">Total Orders</div>
                 </div>
             </div>
-            <div class="stats-row stats-row-3">
+            <div class="stats-row stats-row-2">
                 <div class="stat-card">
                     <div class="stat-number">${stats.ga}</div>
                     <div class="stat-label">GA</div>
@@ -85,10 +83,6 @@ function renderDashboard() {
                 <div class="stat-card">
                     <div class="stat-number">${stats.ga_plus}</div>
                     <div class="stat-label">GA+</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">${stats.vip}</div>
-                    <div class="stat-label">VIP</div>
                 </div>
             </div>
             <div class="stats-row stats-row-5">
@@ -211,7 +205,6 @@ document.getElementById('save-config-btn').addEventListener('click', async () =>
         { key: 'orders_open', value: document.getElementById('config-orders-open').value },
         { key: 'ga_price', value: document.getElementById('config-ga-price').value || 'TBD' },
         { key: 'ga_plus_price', value: document.getElementById('config-ga-plus-price').value || 'TBD' },
-        { key: 'vip_price', value: document.getElementById('config-vip-price').value || 'TBD' }
     ];
 
     try {
