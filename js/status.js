@@ -2,6 +2,7 @@ let currentOrder = null;
 let currentPinHash = null;
 let currentName = null;
 let selectedFile = null;
+let paymentCountdownInterval = null;
 
 // Lookup form
 document.getElementById('lookup-form').addEventListener('submit', async (e) => {
@@ -69,9 +70,59 @@ document.getElementById('lookup-form').addEventListener('submit', async (e) => {
     }
 });
 
-function renderOrder(data) {
+async function renderOrder(data) {
     const order = data.order;
     const canModify = data.can_modify;
+
+    // Clear any previous countdown
+    if (paymentCountdownInterval) {
+        clearInterval(paymentCountdownInterval);
+        paymentCountdownInterval = null;
+    }
+
+    // Build payment deadline info for awaiting_payment orders
+    let paymentDeadlineHtml = '';
+    let paymentDeadline = null;
+    if (order.status === 'awaiting_payment') {
+        const config = await getConfig();
+        const submissionDeadline = new Date(config.modification_deadline);
+        paymentDeadline = new Date(submissionDeadline.getTime() + 21 * 24 * 60 * 60 * 1000);
+        const now = new Date();
+        const expired = now >= paymentDeadline;
+
+        if (expired) {
+            paymentDeadlineHtml = `
+            <div class="payment-notice" style="margin-top:1.25rem;padding:1rem 1.25rem;background:rgba(255,34,85,0.1);border:1px solid rgba(255,34,85,0.3);border-radius:10px;">
+                <p style="margin:0 0 0.5rem 0;color:var(--error);font-weight:600;">Payment Deadline Expired</p>
+                <p style="margin:0;color:#ccc;font-size:0.9rem;">The 21-day payment window has passed. Your order will be cancelled.</p>
+            </div>`;
+        } else {
+            paymentDeadlineHtml = `
+            <div class="payment-notice" style="margin-top:1.25rem;padding:1rem 1.25rem;background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.3);border-radius:10px;">
+                <p style="margin:0 0 0.5rem 0;color:#fb923c;font-weight:600;">Payment Instructions</p>
+                <p style="margin:0 0 1rem 0;color:#ccc;font-size:0.9rem;">Please send your Zelle payment to <strong style="color:#fff;">(702) 330-7976</strong> and upload a screenshot below as proof of payment.</p>
+                <p style="margin:0 0 0.5rem 0;color:var(--error);font-weight:600;font-size:0.8rem;">Payment Deadline: ${paymentDeadline.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at ${paymentDeadline.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })}</p>
+                <div class="countdown" id="payment-countdown">
+                    <div class="countdown-segment" style="background:rgba(255,34,85,0.06);border-color:rgba(255,34,85,0.2);">
+                        <div class="countdown-number" style="color:var(--error);" id="pay-days">--</div>
+                        <div class="countdown-label">Days</div>
+                    </div>
+                    <div class="countdown-segment" style="background:rgba(255,34,85,0.06);border-color:rgba(255,34,85,0.2);">
+                        <div class="countdown-number" style="color:var(--error);" id="pay-hours">--</div>
+                        <div class="countdown-label">Hours</div>
+                    </div>
+                    <div class="countdown-segment" style="background:rgba(255,34,85,0.06);border-color:rgba(255,34,85,0.2);">
+                        <div class="countdown-number" style="color:var(--error);" id="pay-mins">--</div>
+                        <div class="countdown-label">Mins</div>
+                    </div>
+                    <div class="countdown-segment" style="background:rgba(255,34,85,0.06);border-color:rgba(255,34,85,0.2);">
+                        <div class="countdown-number" style="color:var(--error);" id="pay-secs">--</div>
+                        <div class="countdown-label">Secs</div>
+                    </div>
+                </div>
+            </div>`;
+        }
+    }
 
     // Order details
     document.getElementById('order-details').innerHTML = `
@@ -97,13 +148,31 @@ function renderOrder(data) {
             <span class="order-detail-value">${formatDate(order.updated_at)}</span>
         </div>
         ` : ''}
-        ${order.status === 'awaiting_payment' ? `
-        <div class="payment-notice" style="margin-top:1.25rem;padding:1rem 1.25rem;background:rgba(251,146,60,0.1);border:1px solid rgba(251,146,60,0.3);border-radius:10px;">
-            <p style="margin:0 0 0.5rem 0;color:#fb923c;font-weight:600;">Payment Instructions</p>
-            <p style="margin:0;color:#ccc;font-size:0.9rem;">Please send your Zelle payment to <strong style="color:#fff;">(702) 330-7976</strong> and upload a screenshot below as proof of payment.</p>
-        </div>
-        ` : ''}
+        ${paymentDeadlineHtml}
     `;
+
+    // Start live countdown if awaiting payment and not expired
+    if (paymentDeadline && document.getElementById('payment-countdown')) {
+        function updatePaymentCountdown() {
+            const now = new Date();
+            const diff = paymentDeadline - now;
+            if (diff <= 0) {
+                clearInterval(paymentCountdownInterval);
+                document.getElementById('pay-days').textContent = '00';
+                document.getElementById('pay-hours').textContent = '00';
+                document.getElementById('pay-mins').textContent = '00';
+                document.getElementById('pay-secs').textContent = '00';
+                return;
+            }
+            document.getElementById('pay-days').textContent = String(Math.floor(diff / 86400000)).padStart(2, '0');
+            document.getElementById('pay-hours').textContent = String(Math.floor((diff % 86400000) / 3600000)).padStart(2, '0');
+            document.getElementById('pay-mins').textContent = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+            document.getElementById('pay-secs').textContent = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+        }
+
+        updatePaymentCountdown();
+        paymentCountdownInterval = setInterval(updatePaymentCountdown, 1000);
+    }
 
     // Screenshot section - always show so they can upload Zelle proof
     const screenshotSection = document.getElementById('screenshot-section');
@@ -317,6 +386,10 @@ document.getElementById('cancel-btn').addEventListener('click', async () => {
 
 // Back button
 document.getElementById('back-btn').addEventListener('click', () => {
+    if (paymentCountdownInterval) {
+        clearInterval(paymentCountdownInterval);
+        paymentCountdownInterval = null;
+    }
     document.getElementById('order-area').style.display = 'none';
     document.getElementById('lookup-area').style.display = 'block';
     document.getElementById('first-name').value = '';
